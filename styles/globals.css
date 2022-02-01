@@ -6,8 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: 'Satoshi';
 }
 
 a {
@@ -18,3 +17,49 @@ a {
 * {
   box-sizing: border-box;
 }
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-Regular.otf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-Bold.otf);
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-Medium.otf);
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-BoldItalic.otf);
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-MediumItalic.otf);
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-Light.otf);
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: Satoshi;
+  src: url(../fonts/Satoshi-LightItalic.otf);
+  font-weight: 300;
+  font-style: italic;
+}
+
