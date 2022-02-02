@@ -1,4 +1,6 @@
-import type { NextPage } from 'next';
+import type { NextPage } from "next";
+import { useSession, signIn, signOut } from "next-auth/react";
+
 
 //components
 import Carousel from '../components/Carousel';
@@ -68,27 +70,37 @@ const dummyData = [
 ]
 
 const Home: NextPage = () => {
-  return (
-    <div
-      className='bg-appBlack min-h-screen py-[100px]'
-    >
+  const { data: session } = useSession();
+  if (session) {
+    return (
       <div
-        className='w-[75%] mx-auto'
+        className='bg-appBlack min-h-screen py-[100px]'
       >
-        <Carousel />
-        <ul
-          className='grid grid-cols-6 gap-6 mt-14'
+        <div
+          className='w-[75%] mx-auto'
         >
-          {dummyData.map((item, index) => (
-            <GameListItem 
-              key={index}
-              game={item}
-            />
-          ))}
-        </ul>
+          <Carousel />
+          <ul
+            className='grid grid-cols-6 gap-6 mt-14'
+          >
+            {dummyData.map((item, index) => (
+              <GameListItem 
+                key={index}
+                game={item}
+              />
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
-  )
-}
+    );
+  }
+  return (
+    <>
+      Not signed in <br />
+      <button onClick={() => signIn()}>Sign in</button>
+    </>
+  );
+};
 
-export default Home
+
+export default Home;
