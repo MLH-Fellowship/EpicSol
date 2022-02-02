@@ -1,17 +1,25 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRouter } from "next/router";
+
+//models
+import Game from "../../models/Game";
+
 interface Props {
-  game: { image: string, title: string, price: number }
+  game: Game
 }
 
 const GameListItem = ({game} : Props) => {
+  const router = useRouter();
+
   return (
     <li
-      className="flex flex-col cursor-pointer relative aspect-poster"
+      className="relative flex flex-col cursor-pointer aspect-poster"
+      onClick={() => router.push(`/games/${game.id}`)}
     >
       <img 
         alt=""
         src={game.image}
-        className="w-full h-full object-cover rounded"
+        className="object-cover w-full h-full rounded"
       />
       <p
         className="line-clamp-1 text-appGray2 text-[16px] mt-2"

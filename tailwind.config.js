@@ -12,7 +12,8 @@ module.exports = {
         appGray4: "#404040",
         appGray5: "#424242",
         appBlue: "#0078f2",
-        appBlack: "#121212"
+        appBlack: "#121212",
+        appBlack1: "#202020",
       },
       keyframes: {
         thumbnail: {
