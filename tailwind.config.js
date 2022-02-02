@@ -28,8 +28,13 @@ module.exports = {
       },
       animation: {
         thumbnail: 'thumbnail 6s linear 1'
+      },
+      aspectRatio: {
+        'poster': '2 / 3'
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
 }
