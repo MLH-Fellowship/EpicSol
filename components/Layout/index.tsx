@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 
-import Navbar from "./Navbar";
+import Navbar from "../Nav/index";
 
 const Layout = ({children} : {children: ReactElement}) => {
   return (
