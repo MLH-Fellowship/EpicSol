@@ -20,6 +20,8 @@ const GamePage = () => {
 
   const findGame = async () => {
     const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+    console.log(res.data);
+    
     const prod = res.data[0];
     setProduct(prod);
   };
@@ -48,48 +50,50 @@ const GamePage = () => {
 
   return (
     <div className="min-h-screen bg-appBlack pt-[60px] pb-[100px]">
-      <div className="w-[75%] mx-auto">
-        <h1 className="text-[50px] text-appGray2 font-medium">
-          {product?.title}
-        </h1>
-        <div className="grid grid-cols-4 gap-8 mt-6">
-          {/* video embed */}
-          <div className="col-span-3 rounded-xl">
-            <iframe
-              src={product?.youtube_url}
-              title="God of War Trailer"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full rounded aspect-video"
-            ></iframe>
-            <p className="text-appGray2 text-[20px] mt-10">{product?.desc}</p>
-          </div>
-          {/* actions column */}
-          <div>
-            <img
-              alt=""
-              src={product?.image}
-              className="max-h-[150px] mx-auto"
-            />
-            <p className="mt-8 text-appGray2">${product?.price}</p>
-            <button
-              onClick={buyNow} 
-              className="uppercase text-appGray2 bg-appBlue rounded w-full h-[50px] text-[14px] font-medium my-4">
-              Buy Now
-            </button>
-            <button 
-              onClick={addToCart}
-              className="border border-appGray2 rounded w-full h-[50px] text-appGray2 uppercase text-[14px] font-medium mb-8">
-              Add to Cart
-            </button>
-            <GameDetail label="Developer" value={product?.developer} />
-            <GameDetail label="Publisher" value={product?.publisher} />
-            <GameDetail label="Release Date" value={product?.release_date} />
-            <GameDetail label="Platform" value={product?.platform} />
+      {product && (
+        <div className="w-[75%] mx-auto">
+          <h1 className="text-[50px] text-appGray2 font-medium">
+            {product?.title}
+          </h1>
+          <div className="grid grid-cols-4 gap-8 mt-6">
+            {/* video embed */}
+            <div className="col-span-3 rounded-xl">
+              <iframe
+                src={product?.youtube_url}
+                title={`${product.title} Trailer"`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full rounded aspect-video"
+              ></iframe>
+              <p className="text-appGray2 text-[20px] mt-10">{product?.desc}</p>
+            </div>
+            {/* actions column */}
+            <div>
+              <img
+                alt=""
+                src={product?.image}
+                className="max-h-[150px] mx-auto"
+              />
+              <p className="mt-8 text-appGray2">${product?.price}</p>
+              <button
+                onClick={buyNow} 
+                className="uppercase text-appGray2 bg-appBlue rounded w-full h-[50px] text-[14px] font-medium my-4">
+                Buy Now
+              </button>
+              <button 
+                onClick={addToCart}
+                className="border border-appGray2 rounded w-full h-[50px] text-appGray2 uppercase text-[14px] font-medium mb-8">
+                Add to Cart
+              </button>
+              <GameDetail label="Developer" value={product?.developer} />
+              <GameDetail label="Publisher" value={product?.publisher} />
+              <GameDetail label="Release Date" value={product?.release_date} />
+              <GameDetail label="Platform" value={product?.platform} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
       <CheckoutModal 
         open={showCheckout}
         closeModal={() => setShowCheckout(false)}

@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState, createRef, useContext } from "react";
+import { useState, createRef, useContext, useEffect } from "react";
 import { Modal } from "@mui/material";
 import { IoIosWallet } from "react-icons/io";
 import { CgClose } from "react-icons/cg";
@@ -52,10 +52,9 @@ const CheckoutModal = ({open, closeModal} : Props) => {
   }
 
   const selectSolanaPay = () => {
-    if(activeMethod !== 'solana-pay') {
+    // if(activeMethod !== 'solana-pay') {
       setActiveMethod("solana-pay");
-      createPaymentLink();
-    }
+    // }
   }
 
   const submitShipping = async (form) => {
@@ -67,6 +66,10 @@ const CheckoutModal = ({open, closeModal} : Props) => {
       toast.error("An error occurred while updating your information. Please try again later.")
     }
   }
+
+  useEffect(() => {
+    createPaymentLink();
+  }, [qrRef.current, activeMethod])
 
   return (
     <Modal
