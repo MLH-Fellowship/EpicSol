@@ -51,12 +51,18 @@ model User {
 }
 
 model Product {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  orders    Order[]
-  createdAt DateTime
-  updatedAt DateTime @updatedAt
+  id               String  @id @default(cuid())
+  title            String
+  youtube_url      String
+  desc             String?
+  image            String
+  price            Int
+  developer        String
+  merchant_address String
+  publisher        String
+  release_date     String
+  platform         String
+  orders           Order[]
 }
 
 model Order {
@@ -68,8 +74,6 @@ model Order {
   quantity   Int
   total      Int
   payment    Payment[]
-  created_at DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
 }
 
 model Payment {
