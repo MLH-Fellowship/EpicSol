@@ -1,9 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 //models
 import Game from "../../models/Game";
+
+//contexts
+import { CartContext } from "../../contexts/CartProvider";
+import { toast } from "react-toastify";
+
+//components
+import CheckoutModal from "../../components/CheckoutModal";
 
 const dummyData = [
   {
@@ -79,15 +86,38 @@ const dummyData = [
 ];
 
 const GamePage = () => {
+  const { updateGames, games } = useContext(CartContext);
   const router = useRouter();
   const { id } = router.query;
-  const [game, setGame] = useState<Game>();
+  const [game, setGame] = useState<Game>(dummyData[0]);
+  const [showCheckout, setShowCheckout] = useState<boolean>(false);
 
   const findGame = () => {
-    for (const iterator of dummyData) {
-      if (iterator.id.toString() === id) setGame(iterator);
-    }
+    dummyData.forEach(element => {
+      if(element.id === parseInt(id as string))
+        setGame(element);
+    })
   };
+
+  const addToCart = () => {
+    console.log(game);
+    
+    if(games.length > 0) {
+      const index = games.findIndex(item => item.id === game.id);
+      console.log(index);
+      
+      if(index === -1)
+        updateGames([...games, game]);
+      else
+        toast.info("You already have this item in your cart")
+    } else
+      updateGames([game])
+  }
+
+  const buyNow = () => {
+    addToCart();
+    setShowCheckout(true);
+  }
 
   useEffect(() => {
     findGame();
@@ -123,10 +153,14 @@ const GamePage = () => {
               className="max-h-[150px] mx-auto"
             />
             <p className="mt-8 text-appGray2">${game?.price}</p>
-            <button className="uppercase text-appGray2 bg-appBlue rounded w-full h-[50px] text-[14px] font-medium my-4">
+            <button
+              onClick={buyNow} 
+              className="uppercase text-appGray2 bg-appBlue rounded w-full h-[50px] text-[14px] font-medium my-4">
               Buy Now
             </button>
-            <button className="border border-appGray2 rounded w-full h-[50px] text-appGray2 uppercase text-[14px] font-medium mb-8">
+            <button 
+              onClick={addToCart}
+              className="border border-appGray2 rounded w-full h-[50px] text-appGray2 uppercase text-[14px] font-medium mb-8">
               Add to Cart
             </button>
             <GameDetail label="Developer" value="Santa Monica Studio" />
@@ -136,6 +170,10 @@ const GamePage = () => {
           </div>
         </div>
       </div>
+      <CheckoutModal 
+        open={showCheckout}
+        closeModal={() => setShowCheckout(false)}
+      />
     </div>
   );
 };

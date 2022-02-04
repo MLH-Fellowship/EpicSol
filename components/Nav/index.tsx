@@ -1,21 +1,23 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { signIn, useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from 'next/link';
 import { Popover } from "@mui/material";
 import { FiShoppingCart } from "react-icons/fi";
 
+import { CartContext } from "../../contexts/CartProvider";
+
 const Navbar = () => {
+  const { games } = useContext(CartContext);
   const router = useRouter();
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = useState(null);
-  const cart = 1;
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {    
+  const handleClose = () => {
     setAnchorEl(null);
   };
 
@@ -32,14 +34,14 @@ const Navbar = () => {
         {session ? (
           <div className="flex flex-row items-center space-x-8">
             <button
-              disabled={cart === 0}
+              disabled={games.length === 0}
               onClick={() => router.push('/cart')}
               className="flex flex-row items-center tracking-wider text-appGray1"
             >
               <FiShoppingCart size={20}/>
-              {cart !== 0 && (
+              {games.length !== 0 && (
                 <span className="px-[10px] ml-2 bg-white rounded-xl text-black font-bold">
-                  {cart}
+                  {games.length}
                 </span>
               )}
             </button>

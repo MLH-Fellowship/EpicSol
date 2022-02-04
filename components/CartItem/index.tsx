@@ -13,7 +13,7 @@ const CartItem = ({game} : Props) => {
       <div className="flex flex-row space-x-4">
         <img 
           alt=""
-          src="/god_of_war_poster.jpeg"
+          src={game.image}
           className="w-[131px] h-[174.66px] rounded"
         />
         <div className="flex flex-col justify-between">
@@ -21,13 +21,13 @@ const CartItem = ({game} : Props) => {
             <span className="py-1 px-2 uppercase rounded text-appGray2 text-[12px] font-medium tracking-wider bg-appGray text-center w-[fit-content]">
               Base game
             </span>
-            <p className="text-[20px] text-appGray2 mt-1">God of War</p>
+            <p className="text-[20px] text-appGray2 mt-1">{game.title}</p>
           </div>
           <p className="uppercase text-appGray2 text-[12px] font-semibold">Windows</p>
         </div>
       </div>
       <div className="flex flex-col justify-between h-full">
-        <p className="text-appGray2">$59.99</p>
+        <p className="text-appGray2">${game.price}</p>
         <div className="h-32"></div>
         <button
           className="border-b border-b-appGray1 text-appGray1"
