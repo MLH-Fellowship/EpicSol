@@ -58,7 +58,7 @@ model Product {
   image            String
   price            Int
   developer        String
-  merchant_address String
+  merchant_address String  @default("9iSD3wkC1aq3FcwgjJfEua9FkkZJWv7Cuxs6sKjc3VnR")
   publisher        String
   release_date     String
   platform         String
