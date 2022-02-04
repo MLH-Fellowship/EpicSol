@@ -8,7 +8,7 @@ import { FiShoppingCart } from "react-icons/fi";
 import { CartContext } from "../../contexts/CartProvider";
 
 const Navbar = () => {
-  const { games } = useContext(CartContext);
+  const { products } = useContext(CartContext);
   const router = useRouter();
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -34,14 +34,14 @@ const Navbar = () => {
         {session ? (
           <div className="flex flex-row items-center space-x-8">
             <button
-              disabled={games.length === 0}
+              disabled={products.length === 0}
               onClick={() => router.push('/cart')}
               className="flex flex-row items-center tracking-wider text-appGray1"
             >
               <FiShoppingCart size={20}/>
-              {games.length !== 0 && (
+              {products.length !== 0 && (
                 <span className="px-[10px] ml-2 bg-white rounded-xl text-black font-bold">
-                  {games.length}
+                  {products.length}
                 </span>
               )}
             </button>

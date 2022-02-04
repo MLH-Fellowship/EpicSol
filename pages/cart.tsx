@@ -7,17 +7,15 @@ import CheckoutModal from "../components/CheckoutModal";
 //contexts
 import { CartContext } from "../contexts/CartProvider";
 
-//models
-import Game from "../models/Game";
 
 const Cart = () => {
-  const { games, updateGames } = useContext(CartContext);
+  const { products, updateProducts } = useContext(CartContext);
   const [showCheckout, setShowCheckout] = useState<boolean>(false);
   const [total, setTotal] = useState<number>(0);
 
   const getTotal = () => {
     const amountReducer = (previousValue, currentValue) => previousValue + currentValue.price;
-    const total = games.reduce(amountReducer, 0);
+    const total = products.reduce(amountReducer, 0);
     setTotal(total);
   }
 
@@ -37,7 +35,7 @@ const Cart = () => {
           className="grid grid-cols-4 gap-8 mt-6"
         >
           <ul className="col-span-3">
-            {games.map((item, index) => (
+            {products.map((item, index) => (
               <CartItem 
                 key={index}
                 game={item}
