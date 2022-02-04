@@ -1,32 +1,29 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 //components
 import CartItem from "../components/CartItem";
 import CheckoutModal from "../components/CheckoutModal";
 
-const dummyData = [
-  {
-    id: 1,
-    image: "/valorant.jpeg",
-    title: "Valorant",
-    price: 19.99
-  },
-  {
-    id: 2,
-    image: "/tomb-raider.jpeg",
-    title: "Rise of The Tomb Raider",
-    price: 29.99
-  },
-  {
-    id: 3,
-    image: "/star_wars.jpeg",
-    title: "Star Wars Battlefront II",
-    price: 39.99
-  },
-]
+//contexts
+import { CartContext } from "../contexts/CartProvider";
+
+//models
+import Game from "../models/Game";
 
 const Cart = () => {
+  const { games, updateGames } = useContext(CartContext);
   const [showCheckout, setShowCheckout] = useState<boolean>(false);
+  const [total, setTotal] = useState<number>(0);
+
+  const getTotal = () => {
+    const amountReducer = (previousValue, currentValue) => previousValue + currentValue.price;
+    const total = games.reduce(amountReducer, 0);
+    setTotal(total);
+  }
+
+  useEffect(() => {
+    getTotal();
+  }, [])
 
   return (
     <div
@@ -40,7 +37,7 @@ const Cart = () => {
           className="grid grid-cols-4 gap-8 mt-6"
         >
           <ul className="col-span-3">
-            {dummyData.map((item, index) => (
+            {games.map((item, index) => (
               <CartItem 
                 key={index}
                 game={item}
@@ -53,20 +50,20 @@ const Cart = () => {
             >Summary</p>
             <SummaryItem 
               label="Price"
-              value="99.98"
+              value={total}
             />
             <SummaryItem 
               label="Sale Discount"
-              value="0"
+              value={0}
             />
             <SummaryItem 
               label="Coupon Discount"
-              value="0"
+              value={0}
             />
             <hr className="my-4"/>
             <SummaryItem 
               label="Subtotal"
-              value="99.98"
+              value={total}
             />
             <button
               onClick={() => setShowCheckout(true)}
@@ -85,7 +82,7 @@ const Cart = () => {
   )
 }
 
-const SummaryItem = ({label, value} : { label: string, value: string}) => (
+const SummaryItem = ({label, value} : { label: string, value: number}) => (
   <div className="flex flex-row items-center justify-between my-[6px]">
     <p
       className="tracking-wider text-appGray2"
