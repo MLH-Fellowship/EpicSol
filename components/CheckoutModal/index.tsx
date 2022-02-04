@@ -1,49 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState, createRef } from "react";
+import { useState, createRef, useContext } from "react";
 import { Modal } from "@mui/material";
 import { IoIosWallet } from "react-icons/io";
 import { CgClose } from "react-icons/cg";
 import BigNumber from 'bignumber.js';
 import { Cluster, clusterApiUrl, Connection, ConnectionConfig, Keypair, PublicKey } from '@solana/web3.js';
 import { encodeURL, findTransactionSignature, FindTransactionSignatureError, validateTransactionSignature, createQR } from "@solana/pay";
+import { Product } from "@prisma/client";
+import axios from "axios";
+import { toast } from "react-toastify";
+
 
 //components
-import ShippingForm from "../../components/ShippingForm";
+import ShippingForm from "../ShippingForm";
 
-//models
-import Game from "../../models/Game";
+//contexts
+import { CartContext } from "../../contexts/CartProvider";
 
 interface Props {
   open: boolean;
   closeModal: () => void;
 }
-
-const dummyData = [
-  {
-    id: 1,
-    image: "/valorant.jpeg",
-    title: "Valorant",
-    price: 19.99
-  },
-  {
-    id: 2,
-    image: "/tomb-raider.jpeg",
-    title: "Rise of The Tomb Raider",
-    price: 29.99
-  },
-  {
-    id: 3,
-    image: "/star_wars.jpeg",
-    title: "Star Wars Battlefront II",
-    price: 39.99
-  },
-  {
-    id: 4,
-    image: "/star_wars.jpeg",
-    title: "Star Wars Battlefront II",
-    price: 39.99
-  },
-]
 
 const opts: ConnectionConfig = {
   commitment: 'processed'
@@ -51,6 +28,7 @@ const opts: ConnectionConfig = {
 
 
 const CheckoutModal = ({open, closeModal} : Props) => {
+  const {products, updateProducts } = useContext(CartContext);
   const qrRef = createRef<HTMLDivElement>();
   const [showShippingForm, setShowShippingForm] = useState<boolean>(true);
   const [activeMethod, setActiveMethod] = useState<string>("");
@@ -71,6 +49,23 @@ const CheckoutModal = ({open, closeModal} : Props) => {
 
     const qrCode = createQR(url);
     qrCode.append(qrRef.current);
+  }
+
+  const selectSolanaPay = () => {
+    if(activeMethod !== 'solana-pay') {
+      setActiveMethod("solana-pay");
+      createPaymentLink();
+    }
+  }
+
+  const submitShipping = async (form) => {
+    try {
+      await axios.post('http://localhost:3000/api/address', form);
+      toast.success("Shipping information updated");
+      setShowShippingForm(false);
+    } catch (error) {
+      toast.error("An error occurred while updating your information. Please try again later.")
+    }
   }
 
   return (
@@ -95,7 +90,7 @@ const CheckoutModal = ({open, closeModal} : Props) => {
             >Shipping</h2>
             {showShippingForm ? (
               <ShippingForm 
-                onSubmit={() => setShowShippingForm(false)}
+                onSubmit={submitShipping}
               />
             ) : (
               <ShippingInfo 
@@ -109,10 +104,7 @@ const CheckoutModal = ({open, closeModal} : Props) => {
                 >payment methods</h2>
                 <div 
                   className={`px-4 py-4 mt-2 rounded bg-appGray2 ${activeMethod === "solana-pay" ? "border border-appBlue" : ""}`}
-                  onClick={() => {
-                    setActiveMethod("solana-pay");
-                    createPaymentLink();
-                  }}
+                  onClick={selectSolanaPay}
                 >
                   <div className="flex flex-row items-center space-x-4 cursor-pointer">
                     <img 
@@ -163,7 +155,7 @@ const CheckoutModal = ({open, closeModal} : Props) => {
           >order summary</p>
           <div className="h-[80%] overflow-y-scroll pb-16">
             <ul className="mb-6 space-y-2">
-              {dummyData.map((item, index) => (
+              {products.map((item, index) => (
                 <OrderItem 
                   key={index}
                   game={item}
@@ -203,7 +195,7 @@ const CheckoutModal = ({open, closeModal} : Props) => {
   )
 }
 
-const OrderItem = ({game} : { game: Game }) => (
+const OrderItem = ({game} : { game: Product }) => (
   <div
     className="flex flex-row items-center space-x-3"
   >
