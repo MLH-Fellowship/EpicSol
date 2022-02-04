@@ -69,7 +69,7 @@ const GamePage = () => {
           <div>
             <img
               alt=""
-              src="/god_of_war_logo.png"
+              src={product?.image}
               className="max-h-[150px] mx-auto"
             />
             <p className="mt-8 text-appGray2">${product?.price}</p>
@@ -83,10 +83,10 @@ const GamePage = () => {
               className="border border-appGray2 rounded w-full h-[50px] text-appGray2 uppercase text-[14px] font-medium mb-8">
               Add to Cart
             </button>
-            <GameDetail label="Developer" value="Santa Monica Studio" />
-            <GameDetail label="Publisher" value="PlayStation PC LLC" />
-            <GameDetail label="Release Date" value="01/14/22" />
-            <GameDetail label="Platform" value="WINDOWS" />
+            <GameDetail label="Developer" value={product?.developer} />
+            <GameDetail label="Publisher" value={product?.publisher} />
+            <GameDetail label="Release Date" value={product?.release_date} />
+            <GameDetail label="Platform" value={product?.platform} />
           </div>
         </div>
       </div>
