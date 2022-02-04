@@ -9,7 +9,7 @@ const Navbar = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = useState(null);
-  const cart = 0;
+  const cart = 1;
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);

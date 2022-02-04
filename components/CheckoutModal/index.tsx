@@ -1,8 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState } from "react";
+import { useState, createRef } from "react";
 import { Modal } from "@mui/material";
 import { IoIosWallet } from "react-icons/io";
 import { CgClose } from "react-icons/cg";
+import BigNumber from 'bignumber.js';
+import { Cluster, clusterApiUrl, Connection, ConnectionConfig, Keypair, PublicKey } from '@solana/web3.js';
+import { encodeURL, findTransactionSignature, FindTransactionSignatureError, validateTransactionSignature, createQR } from "@solana/pay";
 
 //components
 import ShippingForm from "../../components/ShippingForm";
@@ -42,10 +45,33 @@ const dummyData = [
   },
 ]
 
+const opts: ConnectionConfig = {
+  commitment: 'processed'
+}
+
 
 const CheckoutModal = ({open, closeModal} : Props) => {
+  const qrRef = createRef<HTMLDivElement>();
   const [showShippingForm, setShowShippingForm] = useState<boolean>(true);
   const [activeMethod, setActiveMethod] = useState<string>("");
+  const [paymentStatus, setPaymentStatus] = useState<string>("");
+  
+  const establishConnection = async () => {
+    const connection = new Connection(clusterApiUrl('devnet'), opts.commitment);
+  }
+
+  const createPaymentLink = () => {
+    const url = encodeURL({
+      recipient: new PublicKey("8ixmyB5JqXWSAUVxZgXudUMWjqtonCTqC5FennQ1dJc8"),
+      amount: new BigNumber(1),
+      label: "Game store",
+      message: "Game store - your order",
+      reference: new Keypair().publicKey
+    }) 
+
+    const qrCode = createQR(url);
+    qrCode.append(qrRef.current);
+  }
 
   return (
     <Modal
@@ -83,7 +109,10 @@ const CheckoutModal = ({open, closeModal} : Props) => {
                 >payment methods</h2>
                 <div 
                   className={`px-4 py-4 mt-2 rounded bg-appGray2 ${activeMethod === "solana-pay" ? "border border-appBlue" : ""}`}
-                  onClick={() => setActiveMethod("solana-pay")}
+                  onClick={() => {
+                    setActiveMethod("solana-pay");
+                    createPaymentLink();
+                  }}
                 >
                   <div className="flex flex-row items-center space-x-4 cursor-pointer">
                     <img 
@@ -94,11 +123,13 @@ const CheckoutModal = ({open, closeModal} : Props) => {
                     <p>Solana Pay</p>
                   </div>
                   {activeMethod === 'solana-pay'  && (
-                    <img 
-                      src="/solana-pay-2.png"
-                      className="mt-4"
-                      alt=""
-                    />
+                    <div className="flex flex-col items-center mt-2">
+                      <div
+                        ref={qrRef}
+                      ></div>
+                      <p className="mt-4 font-bold">Scan this code with your Solana Pay wallet</p>
+                      <p>You will be asked to approve the transaction</p>
+                    </div>
                   )}
                 </div>
                 <div
