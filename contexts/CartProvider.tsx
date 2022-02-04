@@ -1,28 +1,28 @@
 import { createContext, ReactElement, useState } from "react";
 
-import Game from "../models/Game";
+import { Product } from "@prisma/client";
 
 interface ICartContext {
-  games: Game[],
-  updateGames: (newGames: Game[]) => void
+  products: Product[],
+  updateProducts: (newProducts: Product[]) => void
 }
 
 const defaultState: ICartContext = {
-  games: [],
-  updateGames: () => {},
+  products: [],
+  updateProducts: () => {},
 }
 
 export const CartContext = createContext<ICartContext>(defaultState);
 
 const CartProvider = ({children} : {children: ReactElement}) => {
-  const [games, setGames] = useState(defaultState.games);
+  const [products, setProducts] = useState(defaultState.products);
 
-  const updateGames = (newGames: Game[]) => {
-    setGames(newGames);
+  const updateProducts = (newProducts: Product[]) => {
+    setProducts(newProducts);
   }
 
   return (
-    <CartContext.Provider value={{games, updateGames}}>
+    <CartContext.Provider value={{products, updateProducts}}>
       {children}
     </CartContext.Provider>
   )

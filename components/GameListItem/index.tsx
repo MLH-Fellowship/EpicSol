@@ -14,7 +14,7 @@ const GameListItem = ({game} : Props) => {
   return (
     <li
       className="relative flex flex-col cursor-pointer aspect-poster"
-      onClick={() => router.push(`/games/${game.id}`)}
+      onClick={() => router.push(`/products/${game.id}`)}
     >
       <img 
         alt=""
