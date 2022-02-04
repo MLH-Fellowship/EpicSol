@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { Product } from "@prisma/client";
+import axios from "axios";
 
 //models
 import Game from "../../models/Game";
@@ -86,32 +88,29 @@ const dummyData = [
 ];
 
 const GamePage = () => {
-  const { updateGames, games } = useContext(CartContext);
+  const { updateProducts, products } = useContext(CartContext);
   const router = useRouter();
   const { id } = router.query;
-  const [game, setGame] = useState<Game>(dummyData[0]);
   const [showCheckout, setShowCheckout] = useState<boolean>(false);
+  const [product, setProduct] = useState<Product>(null);
 
-  const findGame = () => {
-    dummyData.forEach(element => {
-      if(element.id === parseInt(id as string))
-        setGame(element);
-    })
+  const findGame = async () => {
+    const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+    const prod = res.data[0];
+    setProduct(prod);
   };
 
-  const addToCart = () => {
-    console.log(game);
-    
-    if(games.length > 0) {
-      const index = games.findIndex(item => item.id === game.id);
+  const addToCart = () => {    
+    if(products.length > 0) {
+      const index = products.findIndex(item => item.id === product.id);
       console.log(index);
       
       if(index === -1)
-        updateGames([...games, game]);
+        updateProducts([...products, product]);
       else
         toast.info("You already have this item in your cart")
     } else
-      updateGames([game])
+      updateProducts([product])
   }
 
   const buyNow = () => {
@@ -126,24 +125,21 @@ const GamePage = () => {
   return (
     <div className="min-h-screen bg-appBlack pt-[60px] pb-[100px]">
       <div className="w-[75%] mx-auto">
-        <h1 className="text-[50px] text-appGray2 font-medium">{game?.title}</h1>
+        <h1 className="text-[50px] text-appGray2 font-medium">
+          {product?.title}
+        </h1>
         <div className="grid grid-cols-4 gap-8 mt-6">
           {/* video embed */}
           <div className="col-span-3 rounded-xl">
             <iframe
-              src="https://www.youtube.com/embed/K0u_kAWLJOA"
+              src={product?.youtube_url}
               title="God of War Trailer"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="w-full rounded aspect-video"
             ></iframe>
-            <p className="text-appGray2 text-[20px] mt-10">
-              His vengeance against the Gods of Olympus years behind him, Kratos
-              now lives as a man in the realm of Norse Gods and monsters. It is
-              in this harsh, unforgiving world that he must fight to survive…
-              and teach his son to do the same.
-            </p>
+            <p className="text-appGray2 text-[20px] mt-10">{product?.desc}</p>
           </div>
           {/* actions column */}
           <div>
@@ -152,7 +148,7 @@ const GamePage = () => {
               src="/god_of_war_logo.png"
               className="max-h-[150px] mx-auto"
             />
-            <p className="mt-8 text-appGray2">${game?.price}</p>
+            <p className="mt-8 text-appGray2">${product?.price}</p>
             <button
               onClick={buyNow} 
               className="uppercase text-appGray2 bg-appBlue rounded w-full h-[50px] text-[14px] font-medium my-4">
