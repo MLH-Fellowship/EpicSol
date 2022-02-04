@@ -1,4 +1,8 @@
-import CartItem from "../components/CartItem"
+import { useState } from "react";
+
+//components
+import CartItem from "../components/CartItem";
+import CheckoutModal from "../components/CheckoutModal";
 
 const dummyData = [
   {
@@ -22,14 +26,16 @@ const dummyData = [
 ]
 
 const Cart = () => {
+  const [showCheckout, setShowCheckout] = useState<boolean>(false);
+
   return (
     <div
-      className="min-h-screen bg-appBlack pt-[60px] pb-[100px]"
+      className="min-h-screen bg-appBlack pt-[60px] pb-[100px] relative"
     >
       <div
         className="w-[75%] mx-auto"
       >
-        <h1 className="text-[50px] font-medium text-appGray2">My Cart</h1>
+        <h1 className="text-[45px] text-appGray2">My Cart</h1>
         <div
           className="grid grid-cols-4 gap-8 mt-6"
         >
@@ -63,6 +69,7 @@ const Cart = () => {
               value="99.98"
             />
             <button
+              onClick={() => setShowCheckout(true)}
               className="rounded bg-appBlue text-appGray2 uppercase text-[14px] font-medium h-[50px] mt-4"
             >
               CHECK OUT
@@ -70,6 +77,10 @@ const Cart = () => {
           </div>
         </div>
       </div>
+      <CheckoutModal 
+        open={showCheckout}
+        closeModal={() => setShowCheckout(false)}
+      />
     </div>
   )
 }

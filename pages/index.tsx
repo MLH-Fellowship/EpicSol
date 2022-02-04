@@ -3,8 +3,8 @@ import { useSession, signIn, signOut } from "next-auth/react";
 
 
 //components
-import Carousel from '../components/Carousel';
-import GameListItem from '../components/GameListItem';
+import Carousel from '../components/Carousel/index';
+import GameListItem from '../components/GameListItem/index';
 
 const dummyData = [
   {
