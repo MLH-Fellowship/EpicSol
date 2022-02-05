@@ -22,25 +22,17 @@ const Home: NextPage = (props) => {
       setProducts(data.data);
     })();
   }, []);
-  if (session) {
-    return (
-      <div className="bg-appBlack min-h-screen py-[100px]">
-        <div className="w-[75%] mx-auto">
-          <Carousel />
-          <ul className="grid grid-cols-6 gap-6 mt-14">
-            {products.map((item, index) => (
-              <GameListItem key={index} game={item} />
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
-  }
   return (
-    <>
-      Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
-    </>
+    <div className="bg-appBlack min-h-screen py-[100px]">
+      <div className="w-[75%] mx-auto">
+        <Carousel />
+        <ul className="grid grid-cols-6 gap-6 mt-14">
+          {products.map((item, index) => (
+            <GameListItem key={index} game={item} />
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 };
 
