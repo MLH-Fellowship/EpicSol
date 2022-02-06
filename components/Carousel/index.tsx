@@ -69,7 +69,7 @@ const Carousel = () => {
 
   return (
     <div
-      className="grid-cols-4 grid gap-8"
+      className="grid grid-cols-4 gap-8"
     >
       <div
         className="col-span-3 rounded-xl h-[594px] relative overflow-hidden"
@@ -80,24 +80,16 @@ const Carousel = () => {
             animate={controls}
             src={dummyData[activeSlide].image}
             alt=""
-            className="w-full h-full object-cover rounded-2xl transition-opacity"
+            className="object-cover w-full h-full transition-opacity rounded-2xl"
           />
         </AnimatePresence>
-        <div className="absolute top-0 left-0 pb-[60px] px-14 bg-opacity-20 bg-black w-full h-full flex flex-col justify-end">
+        <div className="absolute top-0 left-0 pb-[100px] px-14 bg-opacity-20 bg-black w-full h-full flex flex-col justify-end">
           <p
             className="font-bold text-[12px] text-white"
           >{dummyData[activeSlide].date}</p>
           <p className="text-white font-bold w-[300px] leading-7">
             {dummyData[activeSlide].description}
           </p>
-          <p
-            className="text-white text-[14px] font-bold mt-6"
-          >Starting at ${dummyData[activeSlide].price}</p>
-          <button
-            className="bg-white rounded w-[150px] h-[50px] font-bold text-[13px] mt-8"
-          >
-            BUY NOW
-          </button>
         </div>
       </div>
       <ul>
