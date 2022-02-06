@@ -8,14 +8,10 @@ import axios from "axios";
 import { CartContext } from "../../contexts/CartProvider";
 import { toast } from "react-toastify";
 
-//components
-import CheckoutModal from "../../components/CheckoutModal";
-
 const GamePage = () => {
   const { updateProducts, products } = useContext(CartContext);
   const router = useRouter();
   const { id } = router.query;
-  const [showCheckout, setShowCheckout] = useState<boolean>(false);
   const [product, setProduct] = useState<Product>(null);
 
   const findGame = async () => {
@@ -41,7 +37,7 @@ const GamePage = () => {
 
   const buyNow = () => {
     addToCart();
-    setShowCheckout(true);
+    router.push('/checkout');
   }
 
   useEffect(() => {
@@ -94,10 +90,6 @@ const GamePage = () => {
           </div>
         </div>
       )}
-      <CheckoutModal 
-        open={showCheckout}
-        closeModal={() => setShowCheckout(false)}
-      />
     </div>
   );
 };

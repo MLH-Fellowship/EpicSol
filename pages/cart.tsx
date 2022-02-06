@@ -1,16 +1,16 @@
 import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 //components
 import CartItem from "../components/CartItem";
-import CheckoutModal from "../components/CheckoutModal";
 
 //contexts
 import { CartContext } from "../contexts/CartProvider";
 
 
 const Cart = () => {
+  const router = useRouter();
   const { products, updateProducts } = useContext(CartContext);
-  const [showCheckout, setShowCheckout] = useState<boolean>(false);
   const [total, setTotal] = useState<number>(0);
 
   const getTotal = () => {
@@ -64,7 +64,7 @@ const Cart = () => {
               value={total}
             />
             <button
-              onClick={() => setShowCheckout(true)}
+              onClick={() => router.push('/checkout')}
               className="rounded bg-appBlue text-appGray2 uppercase text-[14px] font-medium h-[50px] mt-4"
             >
               CHECK OUT
@@ -72,10 +72,6 @@ const Cart = () => {
           </div>
         </div>
       </div>
-      <CheckoutModal 
-        open={showCheckout}
-        closeModal={() => setShowCheckout(false)}
-      />
     </div>
   )
 }
