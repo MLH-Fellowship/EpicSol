@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState, createRef, useContext, useEffect } from "react";
+import { useState, createRef, useContext, useEffect, useMemo } from "react";
 import { Modal } from "@mui/material";
 import { IoIosWallet } from "react-icons/io";
 import { CgClose } from "react-icons/cg";
@@ -19,6 +19,26 @@ import {
   validateTransactionSignature,
   createQR,
 } from "@solana/pay";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import {
+  LedgerWalletAdapter,
+  PhantomWalletAdapter,
+  SlopeWalletAdapter,
+  SolflareWalletAdapter,
+  SolletExtensionWalletAdapter,
+  SolletWalletAdapter,
+  TorusWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
+import {
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+require("@solana/wallet-adapter-react-ui/styles.css");
 import { Product } from "@prisma/client";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -44,7 +64,21 @@ const CheckoutModal = ({ open, closeModal }: Props) => {
   const [showShippingForm, setShowShippingForm] = useState<boolean>(true);
   const [activeMethod, setActiveMethod] = useState<string>("");
   const [paymentStatus, setPaymentStatus] = useState<string>("");
-
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SlopeWalletAdapter(),
+      new SolflareWalletAdapter({ network }),
+      new TorusWalletAdapter(),
+      new LedgerWalletAdapter(),
+      new SolletWalletAdapter({ network }),
+      new SolletExtensionWalletAdapter({ network }),
+    ],
+    [network]
+  );
+  console.log("All products Selected", products);
   const establishConnection = async () => {
     const connection = new Connection(clusterApiUrl("devnet"), opts.commitment);
   };
@@ -144,7 +178,13 @@ const CheckoutModal = ({ open, closeModal }: Props) => {
                     <div className="w-[85px] h-[40px] border rounded-md flex flex-row items-center justify-center">
                       <IoIosWallet size={38} color="#0078f2" />
                     </div>
-                    <p>Connect Wallet</p>
+                    <ConnectionProvider endpoint={endpoint}>
+                      <WalletProvider wallets={wallets} autoConnect>
+                        <WalletModalProvider>
+                          <WalletMultiButton />
+                        </WalletModalProvider>
+                      </WalletProvider>
+                    </ConnectionProvider>
                   </div>
                 </div>
               </>
