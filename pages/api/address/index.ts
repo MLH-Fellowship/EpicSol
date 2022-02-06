@@ -7,6 +7,7 @@ const handler = nc<NextApiRequest, NextApiResponse>();
 
 handler.post(async(req,res) => {
     try {
+        console.log("IN CALL");
         const {firstName,lastName,email,address,suite,city,country,postalCode} = req.body;
         const result = await prisma.address.create({
             data:{
@@ -24,10 +25,11 @@ handler.post(async(req,res) => {
             }}
         })
         console.log(result);
-        return res.status(400).json(result);
+        res.status(201).json(result);
     } catch (error) {
+        console.log("-----In Error --------------------------------------------------");
         console.log("Address",error);
-        return res.status(500).send(error);
+        res.status(500).send(error);
     }
 })
 
