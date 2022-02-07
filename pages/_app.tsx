@@ -28,6 +28,7 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 
 import Layout from "../components/Layout/index";
 import CartProvider from "../contexts/CartProvider";
+import AuthProvider from "../contexts/AuthProvider";
 
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
@@ -53,11 +54,13 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
-            <CartProvider>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </CartProvider>
+            <AuthProvider>
+              <CartProvider>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </CartProvider>
+            </AuthProvider>
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>
