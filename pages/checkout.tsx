@@ -28,9 +28,13 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { Product } from "@prisma/client";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { actions, utils, programs, NodeWallet } from "@metaplex/js";
+import * as anchor from "@project-serum/anchor";
+import { TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
+import { useRouter } from "next/router";
+import { Product } from "@prisma/client";
 
 //components
 import ShippingForm from "../components/ShippingForm";
@@ -44,6 +48,7 @@ const opts: ConnectionConfig = {
 };
 
 const CheckoutModal = () => {
+  const router = useRouter();
   const { products, updateProducts } = useContext(CartContext);
   const qrRef = createRef<HTMLDivElement>();
   const [showShippingForm, setShowShippingForm] = useState<boolean>(false);
@@ -114,18 +119,61 @@ const CheckoutModal = () => {
     await connection.confirmTransaction(signature, "processed");
   };
 
+  const create_NFT = async () => {
+    try {
+      const response = await actions.mintNFT({
+        connection, wallet: wallet,
+        uri: "https://34c7ef24f4v2aejh75xhxy5z6ars4xv47gpsdrei6fiowptk2nqq.arweave.net/3wXyF1wvK6ARJ_9ue-O58CMuXrz5nyHEiPFQ6z5q02E",
+        maxSupply: 1
+      });
+      console.log(response);
+    } catch (error) {}
+  }
+
+  const burn_function =async (
+    ownerAddress: anchor.web3.PublicKey,
+    tokenAddress: string,
+    mint: string
+  ) => {
+    try {
+      const mint_address = new anchor.web3.PublicKey(mint);
+      const mint_token_account_address = new anchor.web3.PublicKey(
+        tokenAddress
+      );
+      let tx = new Transaction().add(
+        Token.createBurnInstruction(
+          TOKEN_PROGRAM_ID,
+          mint_address,
+          mint_token_account_address,
+          ownerAddress,
+          [],
+          1
+        )
+      );
+      const signature = await wallet.sendTransaction(tx, connection);
+      await connection.confirmTransaction(signature, "processed");
+    } catch (error) {
+      
+    }
+  }
+
   useEffect(() => {
     if(wallet.publicKey)
       setActiveMethod('wallet')
   }, [wallet.publicKey])
+
+  useEffect(() => {
+    if(products.length === 0)
+      router.back();
+  }, [])
 
   // useEffect(() => {
   //   createPaymentLink();
   // }, [qrRef.current, activeMethod]);
 
   return (
-    <div className="pt-[100px]">
-      <div className="bg-white 2xl:w-[65%] xl:w-[75%] w-[85%] mx-auto relative flex flex-row h-[90%] outline-none ring-0">
+    <div className="py-[20px] h-full overflow-y-hidden">
+      <div className="bg-white 2xl:w-[65%] xl:w-[75%] w-[85%] mx-auto relative flex flex-row outline-none ring-0 h-full">
         <div className="w-[65%] pl-5 pr-2">
           <h1 className="uppercase text-[14px] font-semibold tracking-wider">
             Checkout
@@ -177,11 +225,11 @@ const CheckoutModal = () => {
             )}
           </div>
         </div>
-        <div className="w-[35%] bg-appGray2 px-4 relative">
-          <p className="uppercase text-[14px] font-medium tracking-wider pb-6 pt-2">
+        <div className="w-[35%] bg-appGray2 px-4 relative h-full">
+          <p className="uppercase text-[14px] font-medium tracking-wider pt-2 pb-6">
             order summary
           </p>
-          <div className="h-[80%] overflow-y-scroll pb-16">
+          <div className="h-full overflow-y-scroll pb-28">
             <ul className="mb-6 space-y-2">
               {products.map((item, index) => (
                 <OrderItem key={index} game={item} />
@@ -195,8 +243,9 @@ const CheckoutModal = () => {
           </div>
           <div className="absolute bottom-0 h-[100px] w-full left-0 px-4 bg-appGray2 flex flex-col justify-center">
             <button
+              disabled={activeMethod === ''}
               onClick={submitOrder}
-              className="py-5 uppercase bg-appBlue text-appGray2 text-[12px] tracking-widest font-semibold w-full rounded drop-shadow-lg"
+              className={`py-5 uppercase ${activeMethod === '' ? 'bg-appGray' : 'bg-appBlue'} text-appGray2 text-[12px] tracking-widest font-semibold w-full rounded drop-shadow-lg`}
             >
               place order
             </button>
