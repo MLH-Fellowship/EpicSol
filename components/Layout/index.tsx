@@ -18,7 +18,9 @@ const Layout = ({children} : {children: ReactElement}) => {
         pauseOnHover
       />
       <Navbar />
-      <main>{children}</main>
+      <main
+        className="page-height"
+      >{children}</main>
     </>
   )
 }

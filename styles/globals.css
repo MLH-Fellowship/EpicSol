@@ -63,3 +63,6 @@ a {
   font-style: italic;
 }
 
+.page-height {
+  height: calc(100vh - 52px);
+}
