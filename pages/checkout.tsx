@@ -1,29 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import {
   useState,
-  createRef,
   useContext,
   useEffect,
 } from "react";
-import BigNumber from "bignumber.js";
 import { useSession } from "next-auth/react";
 import {
-  Cluster,
-  clusterApiUrl,
-  Connection,
-  ConnectionConfig,
   Keypair,
-  PublicKey,
   Transaction,
   SystemProgram,
+  PublicKey,
 } from "@solana/web3.js";
-import {
-  encodeURL,
-  findTransactionSignature,
-  FindTransactionSignatureError,
-  validateTransactionSignature,
-  createQR,
-} from "@solana/pay";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   WalletMultiButton,
@@ -38,24 +25,20 @@ import { Product } from "@prisma/client";
 
 //components
 import ShippingForm from "../components/ShippingForm";
+import SolanaPayModal from "../components/SolanaPayModal";
 
 //contexts
 import { CartContext } from "../contexts/CartProvider";
 import { AuthContext } from "../contexts/AuthProvider";
 
-
-const opts: ConnectionConfig = {
-  commitment: "processed",
-};
-
 const CheckoutModal = () => {
   const router = useRouter();
   const { user, updateUser } = useContext(AuthContext);
   const { products, updateProducts } = useContext(CartContext);
-  const qrRef = createRef<HTMLDivElement>();
   const [showShippingForm, setShowShippingForm] = useState<boolean>(false);
   const [activeMethod, setActiveMethod] = useState<string>("");
-  const [paymentStatus, setPaymentStatus] = useState<string>("");
+  const [showSolanaPay, setShowSolanaPay] = useState<boolean>(false);
+  const [orderId, setOrderId] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
   const [solPrice, setSolPrice] = useState<number>(0);
   const [solTotal, setSolTotal] = useState<number>(0);
@@ -69,19 +52,6 @@ const CheckoutModal = () => {
     setTotal(total);
   }
 
-  const createPaymentLink = () => {
-    const url = encodeURL({
-      recipient: new PublicKey("8ixmyB5JqXWSAUVxZgXudUMWjqtonCTqC5FennQ1dJc8"),
-      amount: new BigNumber(solTotal),
-      label: "Game store",
-      message: "Game store - your order",
-      reference: new Keypair().publicKey,
-    });
-
-    const qrCode = createQR(url);
-    qrCode.append(qrRef.current);
-  };
-
   const selectSolanaPay = () => {
     setActiveMethod("solana-pay");
     wallet.disconnect();
@@ -89,19 +59,27 @@ const CheckoutModal = () => {
 
   const submitOrder = async () => {
     try {
-      await axios.post(`http://localhost:3000/api/order`, {
+      const { data } = await axios.post(`http://localhost:3000/api/order`, {
         email: session.user.email,
         quantity: 2,
         amount: 100,
         products: products.map(item => item.id),
       });
+      setOrderId(data.id);
       toast.success("Order Submitted");
+      handlePayment();
     } catch (error) {
       toast.error(
         "An error occurred while placing your order. Please try again later."
       );
     }
   };
+
+  const handlePayment = () => {
+    if(activeMethod === "solana-pay")
+      setShowSolanaPay(true);
+    else transferSol();
+  }
 
   const submitShipping = async (form) => {
     try {
@@ -130,14 +108,26 @@ const CheckoutModal = () => {
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
-        toPubkey: Keypair.generate().publicKey,
+        toPubkey: new PublicKey("8ixmyB5JqXWSAUVxZgXudUMWjqtonCTqC5FennQ1dJc8"),
         lamports: anchor.web3.LAMPORTS_PER_SOL * solTotal,
       })
     );
 
     const signature = await wallet.sendTransaction(transaction, connection);
 
-    await connection.confirmTransaction(signature, "processed");
+    try {
+      await connection.confirmTransaction(signature, "processed");
+      await axios.post("http://localhost:3000/api/payment", { status: "paid", order_id: orderId })
+        .then(res => {
+          toast.success("Payment received");
+          updateProducts([]);
+          router.push("/");
+        })
+        .catch(err => {
+          console.error(err);
+        })
+      
+    } catch (error) {}
   };
 
   const create_NFT = async () => {
@@ -186,8 +176,8 @@ const CheckoutModal = () => {
   }
 
   const computeSolPrice = () => {
-    const amount = (total / solPrice);
-    setSolTotal(amount)
+    const amount = Number(total / solPrice).toFixed(2);
+    setSolTotal(parseFloat(amount))
   }
 
   useEffect(() => {
@@ -216,10 +206,6 @@ const CheckoutModal = () => {
     else
       setShowShippingForm(true);
   }, [])
-
-  // useEffect(() => {
-  //   createPaymentLink();
-  // }, [qrRef.current, activeMethod]);
 
   return (
     <div className="py-[20px] h-full overflow-y-hidden">
@@ -261,15 +247,6 @@ const CheckoutModal = () => {
                       alt=""
                     />
                   </div>
-                  {/* {activeMethod === "solana-pay" && (
-                    <div className="flex flex-col items-center mt-2">
-                      <div ref={qrRef}></div>
-                      <p className="mt-4 font-bold">
-                        Scan this code with your Solana Pay wallet
-                      </p>
-                      <p>You will be asked to approve the transaction</p>
-                    </div>
-                  )} */}
                 </button>
                 <WalletMultiButton />
               </>
@@ -306,6 +283,12 @@ const CheckoutModal = () => {
           </div>
         </div>
       </div>
+      <SolanaPayModal 
+        open={showSolanaPay}
+        closeModal={() => setShowSolanaPay(false)}
+        orderId={orderId}
+        total={solTotal}
+      />
     </div>
   );
 };

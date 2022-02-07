@@ -39,7 +39,7 @@ handler.post(async(req,res) => {
                 })
             }
         }
-        res.status(200).send('success');
+        res.status(200).send(order);
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
