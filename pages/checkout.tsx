@@ -54,15 +54,23 @@ const CheckoutModal = () => {
   const [showShippingForm, setShowShippingForm] = useState<boolean>(false);
   const [activeMethod, setActiveMethod] = useState<string>("");
   const [paymentStatus, setPaymentStatus] = useState<string>("");
+  const [total, setTotal] = useState<number>(0);
+  const [solPrice, setSolPrice] = useState<number>(0);
+  const [solTotal, setSolTotal] = useState<number>(0);
   const { connection } = useConnection();
   const { data: session } = useSession();
   const wallet = useWallet();
 
+  const getTotal = () => {
+    const amountReducer = (previousValue, currentValue) => previousValue + currentValue.price;
+    const total = products.reduce(amountReducer, 0);
+    setTotal(total);
+  }
 
   const createPaymentLink = () => {
     const url = encodeURL({
       recipient: new PublicKey("8ixmyB5JqXWSAUVxZgXudUMWjqtonCTqC5FennQ1dJc8"),
-      amount: new BigNumber(1),
+      amount: new BigNumber(solTotal),
       label: "Game store",
       message: "Game store - your order",
       reference: new Keypair().publicKey,
@@ -82,8 +90,8 @@ const CheckoutModal = () => {
       await axios.post(`http://localhost:3000/api/order`, {
         email: session.user.email,
         quantity: 2,
-        amt: 100,
-        productId: products[0].id,
+        amount: 100,
+        products: products.map(item => item.id),
       });
       toast.success("Order Submitted");
     } catch (error) {
@@ -110,7 +118,7 @@ const CheckoutModal = () => {
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
         toPubkey: Keypair.generate().publicKey,
-        lamports: 10,
+        lamports: anchor.web3.LAMPORTS_PER_SOL * solTotal,
       })
     );
 
@@ -127,7 +135,7 @@ const CheckoutModal = () => {
         maxSupply: 1
       });
       console.log(response);
-    } catch (error) {}
+    } catch (error) { console.error(error) }
   }
 
   const burn_function =async (
@@ -152,9 +160,21 @@ const CheckoutModal = () => {
       );
       const signature = await wallet.sendTransaction(tx, connection);
       await connection.confirmTransaction(signature, "processed");
+    } catch (error) { console.error(error) }
+  }
+
+  const fetchSolPrice = async() => {
+    try {
+      const { data } = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+      setSolPrice(data.solana.usd);
     } catch (error) {
-      
+      toast.error('Unable to fetch SOL price.');
     }
+  }
+
+  const computeSolPrice = () => {
+    const amount = (total / solPrice);
+    setSolTotal(amount)
   }
 
   useEffect(() => {
@@ -165,7 +185,18 @@ const CheckoutModal = () => {
   useEffect(() => {
     if(products.length === 0)
       router.back();
+    else 
+      getTotal();
   }, [])
+
+  useEffect(() => {
+    fetchSolPrice();
+  }, [])
+
+  useEffect(() => {
+    computeSolPrice();
+  }, [solPrice])
+  
 
   // useEffect(() => {
   //   createPaymentLink();
@@ -235,11 +266,14 @@ const CheckoutModal = () => {
                 <OrderItem key={index} game={item} />
               ))}
             </ul>
-            <SummaryItem label="List Price" value="89.97" />
-            <SummaryItem label="Discount" value="0.00" />
-            <SummaryItem label="Coupon" value="0.00" />
+            <SummaryItem label="List Price" value={total} />
+            <SummaryItem label="Discount" value={0} />
+            <SummaryItem label="Coupon" value={0} />
             <hr className="my-2" />
-            <SummaryItem label="Total" value="89.97" />
+            <SummaryItem label="Total" value={total} />
+            <div className="flex flex-row justify-end mt-1">
+              <p>{Number(solTotal).toLocaleString('en')} SOL</p>
+            </div>
           </div>
           <div className="absolute bottom-0 h-[100px] w-full left-0 px-4 bg-appGray2 flex flex-col justify-center">
             <button
@@ -268,10 +302,12 @@ const OrderItem = ({ game }: { game: Product }) => (
   </div>
 );
 
-const SummaryItem = ({ label, value }: { label: string; value: string }) => (
+const SummaryItem = ({ label, value }: { label: string; value: number }) => (
   <div className="flex flex-row items-center justify-between my-[2px]">
     <p className="tracking-wider text-appGray4 text-[14px]">{label}</p>
-    <p className="tracking-wider text-appGray4 text-[14px]">${value}</p>
+    <p className="tracking-wider text-appGray4 text-[14px]">
+      ${Number(value).toLocaleString('en')}
+    </p>
   </div>
 );
 

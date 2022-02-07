@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -83,8 +83,8 @@ model Order {
   id         String    @id @default(cuid())
   user       User      @relation(fields: [user_id], references: [id])
   user_id    String
-  product    Product   @relation(fields: [product_id], references: [id])
-  product_id String
+  products    Product[]   @relation(fields: [product_id], references: [id])
+  product_id String[]
   quantity   Int
   total      Int
   payment    Payment[]
