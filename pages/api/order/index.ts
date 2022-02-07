@@ -6,15 +6,15 @@ const handler = nc<NextApiRequest, NextApiResponse>();
 
 handler.post(async(req,res) => {
     try {
-        console.log("ORDER")
-        const {email,productId,quantity,amt} = req.body;
-        const res = await prisma.order.create({
+        const {email, products, quantity, amount} = req.body;
+
+        const order = await prisma.order.create({
             data:{
                 quantity:quantity,
-                total:amt,
-                product:{
-                    connect:{
-                        id:productId
+                total:amount,
+                products: {
+                    connect: {
+                        id: products[0]
                     }
                 },
                 user:{
@@ -25,9 +25,23 @@ handler.post(async(req,res) => {
    
             }
         })
-        console.log(res);
+        if(products.length > 1) {
+            for (let index = 1; index < products.length; index++) {
+                await prisma.order.update({
+                    where: { id: order.id },
+                    data: {
+                        products: {
+                            connect: {
+                                id: products[index]
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        res.status(200).send(order);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).send(error);
     }
 })

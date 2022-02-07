@@ -1,11 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import Game from "../../models/Game";
+import { Product } from "@prisma/client";
 
-interface Props {
-  game: Game
-}
-
-const CartItem = ({game} : Props) => {
+const CartItem = ({game, removeItem} : {game: Product, removeItem: (id) => void}) => {
   return (
     <li
       className="flex flex-row items-start justify-between w-full p-6 mb-4 rounded bg-appBlack1"
@@ -27,9 +23,10 @@ const CartItem = ({game} : Props) => {
         </div>
       </div>
       <div className="flex flex-col justify-between h-full">
-        <p className="text-appGray2">${game.price}</p>
+        <p className="text-right text-appGray2">${game.price}</p>
         <div className="h-32"></div>
         <button
+          onClick={() => removeItem(game.id)}
           className="border-b border-b-appGray1 text-appGray1"
         >
           Remove
