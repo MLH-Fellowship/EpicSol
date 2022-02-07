@@ -19,9 +19,16 @@ const Cart = () => {
     setTotal(total);
   }
 
+  const removeFromCart = (id) => {
+    console.log(id);
+    
+    const newProducts = products.filter(item => item.id !== id);
+    updateProducts(newProducts);
+  }
+
   useEffect(() => {
     getTotal();
-  }, [])
+  }, [products])
 
   return (
     <div
@@ -39,6 +46,7 @@ const Cart = () => {
               <CartItem 
                 key={index}
                 game={item}
+                removeItem={removeFromCart}
               />
             ))}
           </ul>
@@ -64,6 +72,7 @@ const Cart = () => {
               value={total}
             />
             <button
+              disabled={products.length === 0}
               onClick={() => router.push('/checkout')}
               className="rounded bg-appBlue text-appGray2 uppercase text-[14px] font-medium h-[50px] mt-4"
             >

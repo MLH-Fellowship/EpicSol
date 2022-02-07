@@ -24,7 +24,7 @@ interface Props {
 }
 
 const SolanaPayModal = ({ open, closeModal, orderId, total } : Props) => {
-  const { updateCart } = useContext(CartContext);
+  const { updateProducts } = useContext(CartContext);
   const router = useRouter();
   const qrRef = createRef<HTMLDivElement>();
   const reference = new Keypair().publicKey;
@@ -58,7 +58,7 @@ const SolanaPayModal = ({ open, closeModal, orderId, total } : Props) => {
         const data = await findTransactionSignature(connection, reference, undefined, 'confirmed');
         console.log('\n 🖌  Signature found: ', data.signature);
         toast.success('✅ Payment validated');
-        updateCart([]);
+        updateProducts([]);
         await axios.post("http://localhost:3000/api/payment", { status: "paid", order_id: orderId })
         .then(res => {
           toast.success("Payment received");
