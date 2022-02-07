@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
 //components
@@ -6,10 +6,12 @@ import FormInput from "../FormInput";
 
 interface Props {
   onSubmit: (form) => void;
+  user?: any;
 }
 
-const ShippingForm = ({ onSubmit } : Props) => {
+const ShippingForm = ({ onSubmit, user } : Props) => {
   const { data: session } = useSession();
+  const [disabled, setDisabled] = useState<boolean>(true);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [address, setAddress] = useState<string>("");
@@ -22,6 +24,34 @@ const ShippingForm = ({ onSubmit } : Props) => {
     {firstName, lastName, address, suite, city, 
       country, postalCode: postal, email: session.user.email}
   )
+
+  const submitForm = () => {
+    onSubmit(generateForm());
+  }
+
+  const populateFields = () => {
+    const names = user.name.split(" ");
+    setFirstName(names[0]);
+    setLastName(names[1]);
+    setAddress(user.Address.address);
+    setSuite("");
+    setCity(user.Address.City);
+    setCountry(user.Address.Country);
+    setPostal(user.Address.postal_code);
+  }
+
+  useEffect(() => {
+    if(user && user.Address) 
+      populateFields()
+  }, [])
+
+  useEffect(() => {
+    if(firstName.length > 0 && lastName.length > 0 && city.length > 0 
+      && address.length > 0 && country.length > 0 && postal.length > 0)
+      setDisabled(false)
+    else
+      setDisabled(true);
+  }, [firstName, lastName, city, address, suite, country, postal])
 
   return (
     <form
@@ -85,8 +115,9 @@ const ShippingForm = ({ onSubmit } : Props) => {
       </div>
       <div className="flex flex-row justify-center">
         <button
-          onClick={() => onSubmit(generateForm())}
-          className="mx-auto mt-8 bg-appBlue text-appGray2 w-full h-[55px] uppercase tracking-widest rounded text-[12px] font-semibold"
+          disabled={disabled}
+          onClick={submitForm}
+          className={`mx-auto mt-8 ${disabled ? "bg-appGray" : "bg-appBlue"} text-appGray2 w-full h-[55px] uppercase tracking-widest rounded text-[12px] font-semibold`}
         >
           Save
         </button>

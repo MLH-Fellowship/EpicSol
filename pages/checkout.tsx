@@ -30,7 +30,7 @@ import {
 } from "@solana/wallet-adapter-react-ui";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { actions, utils, programs, NodeWallet } from "@metaplex/js";
+import { actions } from "@metaplex/js";
 import * as anchor from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
 import { useRouter } from "next/router";
@@ -41,6 +41,7 @@ import ShippingForm from "../components/ShippingForm";
 
 //contexts
 import { CartContext } from "../contexts/CartProvider";
+import { AuthContext } from "../contexts/AuthProvider";
 
 
 const opts: ConnectionConfig = {
@@ -49,6 +50,7 @@ const opts: ConnectionConfig = {
 
 const CheckoutModal = () => {
   const router = useRouter();
+  const { user, updateUser } = useContext(AuthContext);
   const { products, updateProducts } = useContext(CartContext);
   const qrRef = createRef<HTMLDivElement>();
   const [showShippingForm, setShowShippingForm] = useState<boolean>(false);
@@ -104,6 +106,7 @@ const CheckoutModal = () => {
   const submitShipping = async (form) => {
     try {
       const res = await axios.post("http://localhost:3000/api/address", form);
+      fetchUserData();
       toast.success("Shipping information updated");
       setShowShippingForm(false);
     } catch (error) {
@@ -112,6 +115,16 @@ const CheckoutModal = () => {
       );
     }
   };
+
+  const fetchUserData = async() => {
+    try {
+      const { data } = await axios.get(`http://localhost:3000/api/users/${session.user.email}`);
+      updateUser(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   const transferSol = async () => {
     const transaction = new Transaction().add(
@@ -197,6 +210,12 @@ const CheckoutModal = () => {
     computeSolPrice();
   }, [solPrice])
   
+  useEffect(() => {
+    if(user && user.Address)
+      setShowShippingForm(false);
+    else
+      setShowShippingForm(true);
+  }, [])
 
   // useEffect(() => {
   //   createPaymentLink();
@@ -215,9 +234,10 @@ const CheckoutModal = () => {
               Shipping
             </h2>
             {showShippingForm ? (
-              <ShippingForm onSubmit={submitShipping} />
+              <ShippingForm onSubmit={submitShipping} user={user} />
             ) : (
               <ShippingInfo
+                user={user}
                 editShipping={() => setShowShippingForm(true)}
               />
             )}
@@ -311,13 +331,13 @@ const SummaryItem = ({ label, value }: { label: string; value: number }) => (
   </div>
 );
 
-const ShippingInfo = ({ editShipping }: { editShipping: () => void }) => (
+const ShippingInfo = ({ editShipping, user }: { editShipping: () => void, user: any }) => (
   <div className="mt-2">
-    <p>Rick Sanchez</p>
+    <p>{user && user.name}</p>
     <p>
-      871 Kenangen Street (between Jones and Leavensworth St), San Francisco
+      {user && user.Address.address}
     </p>
-    <p>San Francisco, California</p>
+    <p>{user &&user.Address.City}</p>
     <div className="flex flex-row justify-end w-full">
       <button
         onClick={editShipping}

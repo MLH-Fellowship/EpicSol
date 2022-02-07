@@ -1,10 +1,8 @@
 import { createContext, ReactElement, useState } from "react";
 
-import { User } from "prisma/prisma-client";
-
 interface IAuthContext {
-  user: User,
-  updateUser: (newUser: User) => void
+  user: any,
+  updateUser: (newUser: any) => void
 }
 
 const defaultState: IAuthContext = {
@@ -17,7 +15,7 @@ export const AuthContext = createContext<IAuthContext>(defaultState);
 const AuthProvider = ({children} : { children: ReactElement }) => {
   const [user, setUser] = useState(defaultState.user);
 
-  const updateUser = (newUser: User) => {
+  const updateUser = (newUser: any) => {
     setUser(newUser);
   }
 
